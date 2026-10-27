@@ -37,8 +37,9 @@ Un token gratuit s'obtient sur [football-data.org](https://www.football-data.org
 | `make check` | Lint, typage, tests (comme la CI) |
 | `make format` | Formate le code |
 | `make extract` | API → couche raw (`data/raw/…`) ; `SCORERS=1` pour tenter les buteurs |
-| `make load` | *(J4)* raw → DuckDB |
-| `make transform` | *(J4)* `dbt build` |
+| `make load` | raw → DuckDB (schéma `raw`) |
+| `make transform` | `dbt build` : modèles + tests |
+| `make docs` | Documentation dbt et lineage |
 | `make app` | *(J5)* Lance le dashboard |
 
 ## Arborescence

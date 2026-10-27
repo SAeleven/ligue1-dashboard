@@ -120,7 +120,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     season = args.season if args.season is not None else current_season(today)
 
     with FootballDataClient(
-        token=settings.football_data_token.get_secret_value(),
+        token=settings.require_token(),
         base_url=settings.football_data_base_url,
         competition=settings.competition_code,
     ) as client:

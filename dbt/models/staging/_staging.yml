@@ -1,0 +1,102 @@
+version: 2
+
+models:
+  - name: stg_matches
+    description: >
+      Matchs de la saison, un par ligne, dans leur état le plus récent.
+      Scores nuls (null) tant que le match n'est pas joué.
+    columns:
+      - name: match_id
+        description: Identifiant football-data.org du match.
+        data_tests: [unique, not_null]
+      - name: season
+        data_tests: [not_null]
+      - name: matchday
+        description: Journée de championnat.
+        data_tests: [not_null]
+      - name: kickoff_at
+        description: Coup d'envoi (UTC).
+        data_tests: [not_null]
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [SCHEDULED, TIMED, IN_PLAY, PAUSED, EXTRA_TIME, PENALTY_SHOOTOUT,
+                         FINISHED, SUSPENDED, POSTPONED, CANCELLED, AWARDED]
+      - name: home_team_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_teams')
+                field: team_id
+      - name: away_team_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_teams')
+                field: team_id
+      - name: home_goals
+        description: Buts de l'équipe à domicile (temps réglementaire et prolongations).
+      - name: away_goals
+        description: Buts de l'équipe à l'extérieur.
+      - name: winner
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [HOME_TEAM, AWAY_TEAM, DRAW]
+      - name: extracted_on
+        description: Date du snapshot dont provient la ligne.
+
+  - name: stg_teams
+    description: Équipes engagées dans la compétition, une par ligne.
+    columns:
+      - name: team_id
+        data_tests: [unique, not_null]
+      - name: team_name
+        data_tests: [not_null]
+      - name: crest_url
+        description: URL du logo.
+
+  - name: stg_standings
+    description: >
+      Classement officiel du dernier snapshot, une ligne par équipe et par type
+      (total, home, away). Sert de référence pour contrôler le classement recalculé.
+    columns:
+      - name: standing_id
+        description: Clé technique `<type>-<team_id>`.
+        data_tests: [unique, not_null]
+      - name: standing_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [total, home, away]
+      - name: team_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_teams')
+                field: team_id
+      - name: position
+        data_tests: [not_null]
+      - name: points
+        data_tests: [not_null]
+
+  - name: stg_scorers
+    description: Classement des buteurs du dernier snapshot (bloc F5).
+    columns:
+      - name: player_id
+        data_tests: [unique, not_null]
+      - name: team_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_teams')
+                field: team_id
+      - name: goals
+        data_tests: [not_null]

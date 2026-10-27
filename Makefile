@@ -1,4 +1,4 @@
-.PHONY: help setup lint format typecheck test check extract load transform export app
+.PHONY: help setup lint format typecheck test check extract load transform docs export app
 
 SEASON ?= 2026
 
@@ -29,11 +29,15 @@ check: lint typecheck test ## Tout ce que la CI vérifie
 extract: ## API -> couche raw (SEASON=2026, SCORERS=1 pour tenter les buteurs)
 	uv run python -m ligue1.extract --season $(SEASON) $(if $(SCORERS),--scorers,)
 
-load: ## [J4] couche raw -> DuckDB
+load: ## couche raw -> DuckDB (schéma raw)
 	uv run python -m ligue1.load
 
-transform: ## [J4] dbt build
-	cd dbt && uv run dbt build
+transform: ## dbt build (modèles + tests)
+	uv run dbt build --project-dir dbt --profiles-dir dbt
+
+docs: ## Génère et sert la documentation dbt (lineage)
+	uv run dbt docs generate --project-dir dbt --profiles-dir dbt
+	uv run dbt docs serve --project-dir dbt --profiles-dir dbt
 
 export: ## [J6] marts -> Parquet
 	uv run python -m ligue1.export

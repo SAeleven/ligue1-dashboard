@@ -1,0 +1,10 @@
+# Aucun secret ici : seul le chemin de la base, lu dans DUCKDB_PATH (défaut : data/ligue1.duckdb).
+# Les commandes dbt se lancent depuis la racine du repo :
+#   uv run dbt build --project-dir dbt --profiles-dir dbt
+ligue1:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', 'data/ligue1.duckdb') }}"
+      threads: 4

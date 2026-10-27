@@ -1,6 +1,6 @@
 # Ligue 1 Dashboard
 
-![CI](https://github.com/<ton-compte>/ligue1-dashboard/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/SAeleven/ligue1-dashboard/actions/workflows/ci.yml/badge.svg)
 
 Dashboard public de la saison de Ligue 1 en cours, alimenté chaque jour par un pipeline de données automatisé :
 
@@ -20,7 +20,7 @@ Python 3.12 · httpx · Pydantic · DuckDB · dbt-core · Streamlit · GitHub Ac
 Prérequis : [uv](https://docs.astral.sh/uv/getting-started/installation/) et `make`.
 
 ```bash
-git clone https://github.com/<ton-compte>/ligue1-dashboard.git
+git clone https://github.com/SAeleven/ligue1-dashboard.git
 cd ligue1-dashboard
 make setup                 # installe Python 3.12, les dépendances et les hooks pre-commit
 cp .env.example .env       # puis renseigner FOOTBALL_DATA_TOKEN

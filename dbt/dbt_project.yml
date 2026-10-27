@@ -21,3 +21,13 @@ models:
     marts:
       +schema: marts
       +materialized: table
+
+vars:
+  # Zones du classement (Ligue 1 à 18 clubs). Les places européennes dépendent
+  # chaque saison du coefficient UEFA et du vainqueur de la Coupe de France :
+  # à ajuster ici si besoin.
+  ucl_last_position: 4            # 1-3 : phase de ligue, 4 : tour préliminaire
+  uel_last_position: 5
+  uecl_last_position: 6
+  relegation_playoff_position: 16 # barrage contre le 3e de Ligue 2
+  relegation_first_position: 17   # 17-18 : relégation directe

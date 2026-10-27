@@ -1,0 +1,114 @@
+version: 2
+
+models:
+  - name: dim_teams
+    description: Dimension équipe (nom, nom court, sigle, logo, stade).
+    columns:
+      - name: team_id
+        data_tests: [unique, not_null]
+      - name: short_name
+        data_tests: [not_null]
+
+  - name: fct_matches
+    description: Matchs joués et à venir, avec noms et logos des équipes (bloc F4).
+    columns:
+      - name: match_id
+        data_tests: [unique, not_null]
+      - name: home_team_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_teams')
+                field: team_id
+      - name: away_team_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_teams')
+                field: team_id
+      - name: outcome
+        description: home, away ou draw ; null si non joué.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [home, away, draw]
+
+  - name: mart_standings_current
+    description: >
+      Classement actuel recalculé, avec la forme sur les 5 derniers matchs
+      (du plus ancien au plus récent) et la zone européenne ou de relégation (bloc F1).
+    columns:
+      - name: team_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_teams')
+                field: team_id
+      - name: position
+        data_tests: [unique, not_null]
+      - name: points
+        data_tests: [not_null]
+      - name: form
+        description: Résultats des 5 derniers matchs, ex. "WDLWW" (le plus récent à droite).
+      - name: zone
+        description: Zone de qualification ou de relégation ; bornes dans les vars de dbt_project.yml.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [Ligue des champions, Ligue Europa, Ligue Conférence, Barrage, Relégation]
+
+  - name: mart_standings_history
+    description: Rang et points cumulés de chaque équipe après chaque journée (bloc F2).
+    columns:
+      - name: standing_key
+        data_tests: [unique, not_null]
+      - name: position
+        data_tests: [not_null]
+
+  - name: mart_team_profile
+    description: >
+      Profil par équipe (bloc F3) : bilans domicile et extérieur, buts par match,
+      clean sheets, série en cours, séries sans défaite et sans victoire.
+    columns:
+      - name: team_id
+        data_tests: [unique, not_null]
+      - name: current_streak_result
+        description: Résultat du dernier match (W/D/L), que prolonge la série en cours.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [W, D, L]
+      - name: current_streak_length
+        description: Nombre de matchs consécutifs avec ce même résultat.
+
+  - name: mart_league_overview
+    description: >
+      Une ligne par saison : moyennes de la ligue, répartition des résultats,
+      prochaine journée, plus large victoire et match le plus prolifique (blocs F3, F4).
+    columns:
+      - name: season
+        data_tests: [unique, not_null]
+      - name: biggest_win_match_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('fct_matches')
+                field: match_id
+      - name: highest_scoring_match_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('fct_matches')
+                field: match_id
+      - name: data_as_of
+        description: Date du dernier snapshot de matchs (affichée dans l'en-tête du dashboard).
+
+  - name: mart_top_scorers
+    description: Classement des buteurs (bloc F5).
+    columns:
+      - name: player_id
+        data_tests: [unique, not_null]
+      - name: rank
+        data_tests: [not_null]

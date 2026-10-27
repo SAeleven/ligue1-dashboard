@@ -38,8 +38,19 @@ renamed as (
         extracted_on
     from exploded
 
+),
+
+flagged as (
+
+    select
+        *,
+        -- Un match compte dans le classement quand il est terminé (ou attribué
+        -- sur tapis vert) et que son score est connu.
+        status in ('FINISHED', 'AWARDED') and home_goals is not null as is_played
+    from renamed
+
 )
 
 select *
-from renamed
+from flagged
 qualify row_number() over (partition by match_id order by extracted_on desc) = 1

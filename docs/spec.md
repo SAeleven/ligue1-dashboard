@@ -104,6 +104,6 @@ Streamlit Community Cloud déploie depuis `main` et lit les Parquet de `data` pa
 ## 9. Questions ouvertes
 
 - [x] Endpoint `scorers` accessible en gratuit ? **Oui** (test réel du 27/10/2026, HTTP 200) : F5 entre dans le périmètre
-- [ ] Règles de départage de la Ligue 1 (règlement LFP, avant J4)
+- [x] Règles de départage de la Ligue 1 : règlement LFP 2025-26, critères 1 à 6 appliqués (voir `docs/adr/0002-departage.md`)
 - [ ] Volume réel des snapshots `matches` compressés — mesure du 27/10/2026 : ~480 Ko brut par snapshot, soit ~150 Mo brut par saison ; à confirmer compressé en J6
 - [ ] Lecture HTTPS des Parquet depuis Streamlit Community Cloud (J6)

@@ -1,0 +1,82 @@
+version: 2
+
+models:
+  - name: int_team_matches
+    description: >
+      Chaque match vu par chacune des deux équipes (deux lignes par match),
+      joué ou à venir. Résultat (W/D/L) et points renseignés seulement pour
+      les matchs joués.
+    columns:
+      - name: team_match_id
+        description: Clé technique `<match_id>-<team_id>`.
+        data_tests: [unique, not_null]
+      - name: team_id
+        data_tests: [not_null]
+      - name: opponent_id
+        data_tests: [not_null]
+      - name: venue
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [home, away]
+      - name: result
+        description: W (victoire), D (nul), L (défaite) ; null si non joué.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [W, D, L]
+      - name: points
+        description: 3, 1 ou 0 ; null si non joué.
+
+  - name: int_standings_by_matchday
+    description: >
+      Classement recalculé après chaque journée à partir des seuls résultats,
+      avec les critères de départage LFP 2025-26 (voir docs/adr/0002-departage.md).
+    columns:
+      - name: standing_key
+        description: Clé technique `<saison>-<journée>-<team_id>`.
+        data_tests: [unique, not_null]
+      - name: position
+        data_tests: [not_null]
+      - name: points
+        data_tests: [not_null]
+      - name: h2h_points
+        description: Points obtenus contre les équipes à égalité (points et différence de buts).
+      - name: h2h_goal_difference
+        description: Différence de buts contre les équipes à égalité.
+
+unit_tests:
+  - name: head_to_head_breaks_tie_before_goals_scored
+    description: >
+      Après la J2, les équipes 1 et 2 ont 3 points et une différence de buts nulle.
+      L'équipe 1 a marqué plus de buts, mais l'équipe 2 a gagné la confrontation
+      directe : l'équipe 2 doit passer devant. À la J1, les équipes 3 et 4 sont à
+      égalité parfaite (nul entre elles) : l'identifiant départage.
+    model: int_standings_by_matchday
+    given:
+      - input: ref('int_team_matches')
+        rows:
+          # J1 : équipe 2 bat équipe 1 (1-0) ; 3 et 4 font 0-0
+          - {match_id: 1, season: 2026, matchday: 1, is_played: true, team_id: 2, opponent_id: 1, venue: home, goals_for: 1, goals_against: 0, result: W, points: 3}
+          - {match_id: 1, season: 2026, matchday: 1, is_played: true, team_id: 1, opponent_id: 2, venue: away, goals_for: 0, goals_against: 1, result: L, points: 0}
+          - {match_id: 2, season: 2026, matchday: 1, is_played: true, team_id: 3, opponent_id: 4, venue: home, goals_for: 0, goals_against: 0, result: D, points: 1}
+          - {match_id: 2, season: 2026, matchday: 1, is_played: true, team_id: 4, opponent_id: 3, venue: away, goals_for: 0, goals_against: 0, result: D, points: 1}
+          # J2 : équipe 1 bat équipe 3 (3-2) ; équipe 4 bat équipe 2 (1-0)
+          - {match_id: 3, season: 2026, matchday: 2, is_played: true, team_id: 1, opponent_id: 3, venue: home, goals_for: 3, goals_against: 2, result: W, points: 3}
+          - {match_id: 3, season: 2026, matchday: 2, is_played: true, team_id: 3, opponent_id: 1, venue: away, goals_for: 2, goals_against: 3, result: L, points: 0}
+          - {match_id: 4, season: 2026, matchday: 2, is_played: true, team_id: 4, opponent_id: 2, venue: home, goals_for: 1, goals_against: 0, result: W, points: 3}
+          - {match_id: 4, season: 2026, matchday: 2, is_played: true, team_id: 2, opponent_id: 4, venue: away, goals_for: 0, goals_against: 1, result: L, points: 0}
+          # J3 programmée, pas encore jouée : ignorée
+          - {match_id: 5, season: 2026, matchday: 3, is_played: false, team_id: 1, opponent_id: 4, venue: home}
+          - {match_id: 5, season: 2026, matchday: 3, is_played: false, team_id: 4, opponent_id: 1, venue: away}
+    expect:
+      rows:
+        - {matchday: 1, team_id: 2, position: 1, points: 3}
+        - {matchday: 1, team_id: 3, position: 2, points: 1}
+        - {matchday: 1, team_id: 4, position: 3, points: 1}
+        - {matchday: 1, team_id: 1, position: 4, points: 0}
+        - {matchday: 2, team_id: 4, position: 1, points: 4}
+        - {matchday: 2, team_id: 2, position: 2, points: 3}
+        - {matchday: 2, team_id: 1, position: 3, points: 3}
+        - {matchday: 2, team_id: 3, position: 4, points: 1}

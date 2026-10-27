@@ -20,7 +20,7 @@ Chaque étape se lance aussi seule en local via une commande `make`.
 | `GET /v4/competitions/FL1/matches` | Tous les matchs de la saison : journée, date, statut, équipes, score final et mi-temps | F2, F3, F4 et recalcul du classement | Oui |
 | `GET /v4/competitions/FL1/standings` | Classement actuel (général, domicile, extérieur), forme | Contrôle du classement recalculé | Oui |
 | `GET /v4/competitions/FL1/teams` | Équipes : id, nom, nom court, sigle, logo | Dimension équipe | Oui |
-| `GET /v4/competitions/FL1/scorers` | Meilleurs buteurs | F5 (optionnel) | À vérifier en J3 |
+| `GET /v4/competitions/FL1/scorers` | Meilleurs buteurs | F5 | Oui (vérifié le 27/10/2026) |
 
 - URL de base `https://api.football-data.org/v4`, authentification par l'en-tête `X-Auth-Token`.
 - Code de la Ligue 1 : `FL1`. Saison en paramètre `season=YYYY` (année de début).
@@ -103,7 +103,7 @@ Streamlit Community Cloud déploie depuis `main` et lit les Parquet de `data` pa
 
 ## 9. Questions ouvertes
 
-- [ ] Endpoint `scorers` accessible en gratuit ? (J3, conditionne F5)
+- [x] Endpoint `scorers` accessible en gratuit ? **Oui** (test réel du 27/10/2026, HTTP 200) : F5 entre dans le périmètre
 - [ ] Règles de départage de la Ligue 1 (règlement LFP, avant J4)
-- [ ] Volume réel des snapshots `matches` compressés
+- [ ] Volume réel des snapshots `matches` compressés — mesure du 27/10/2026 : ~480 Ko brut par snapshot, soit ~150 Mo brut par saison ; à confirmer compressé en J6
 - [ ] Lecture HTTPS des Parquet depuis Streamlit Community Cloud (J6)

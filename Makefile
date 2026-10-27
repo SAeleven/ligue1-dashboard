@@ -26,10 +26,10 @@ test: ## Tests pytest
 check: lint typecheck test ## Tout ce que la CI vérifie
 
 # --- Pipeline (implémenté aux jalons suivants) ---------------------------------
-extract: ## [J3] API -> couche raw
-	uv run python -m ligue1.extract --season $(SEASON)
+extract: ## API -> couche raw (SEASON=2026, SCORERS=1 pour tenter les buteurs)
+	uv run python -m ligue1.extract --season $(SEASON) $(if $(SCORERS),--scorers,)
 
-load: ## [J3] couche raw -> DuckDB
+load: ## [J4] couche raw -> DuckDB
 	uv run python -m ligue1.load
 
 transform: ## [J4] dbt build

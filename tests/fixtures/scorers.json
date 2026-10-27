@@ -1,0 +1,42 @@
+{
+  "count": 1,
+  "filters": {
+    "season": "2026",
+    "limit": 50
+  },
+  "competition": {
+    "id": 2015,
+    "name": "Ligue 1",
+    "code": "FL1",
+    "type": "LEAGUE",
+    "emblem": "https://crests.football-data.org/FL1.png"
+  },
+  "season": {
+    "id": 9999,
+    "startDate": "2026-08-14",
+    "endDate": "2027-05-22",
+    "currentMatchday": 2,
+    "winner": null
+  },
+  "scorers": [
+    {
+      "player": {
+        "id": 1,
+        "name": "Joueur Test",
+        "nationality": "France",
+        "position": "Offence"
+      },
+      "team": {
+        "id": 524,
+        "name": "Paris Saint-Germain FC",
+        "shortName": "PSG",
+        "tla": "PSG",
+        "crest": "https://crests.football-data.org/524.png"
+      },
+      "playedMatches": 1,
+      "goals": 2,
+      "assists": null,
+      "penalties": null
+    }
+  ]
+}

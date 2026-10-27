@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from string import Template
 
 import duckdb
 
@@ -32,26 +33,27 @@ logger = logging.getLogger(__name__)
 
 ENDPOINTS: tuple[Endpoint, ...] = ("matches", "standings", "teams", "scorers")
 
-CREATE_TABLE = """
-create or replace table raw.{table} (
+# string.Template ($nom) plutôt que str.format : les regex SQL contiennent des accolades.
+CREATE_TABLE = Template("""
+create or replace table raw.$table (
     season integer not null,
     extracted_on date not null,
     source_file varchar not null,
     payload json not null,
     loaded_at timestamp with time zone not null
 )
-"""
+""")
 
-INSERT_FILES = r"""
-insert into raw.{table}
+INSERT_FILES = Template(r"""
+insert into raw.$table
 select
     regexp_extract(filename, 'season=(\d{4})', 1)::integer,
     regexp_extract(filename, 'date=(\d{4}-\d{2}-\d{2})', 1)::date,
     filename,
     content::json,
     current_timestamp
-from read_text({files})
-"""
+from read_text($files)
+""")
 
 
 def raw_files(data_dir: Path, endpoint: Endpoint) -> list[Path]:
@@ -73,10 +75,10 @@ def load(data_dir: Path, db_path: Path) -> dict[Endpoint, int]:
         con.begin()
         con.execute("create schema if not exists raw")
         for endpoint in ENDPOINTS:
-            con.execute(CREATE_TABLE.format(table=endpoint))
+            con.execute(CREATE_TABLE.substitute(table=endpoint))
             files = raw_files(data_dir, endpoint)
             if files:
-                con.execute(INSERT_FILES.format(table=endpoint, files=_sql_list(files)))
+                con.execute(INSERT_FILES.substitute(table=endpoint, files=_sql_list(files)))
             counts[endpoint] = len(files)
         con.commit()
 

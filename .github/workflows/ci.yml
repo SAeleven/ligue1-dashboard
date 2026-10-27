@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Installer les dépendances
+        run: uv sync --locked
+
+      - name: Lint (ruff)
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Typage (mypy)
+        run: uv run mypy
+
+      - name: Tests (pytest)
+        run: uv run pytest --cov=ligue1 --cov-report=term-missing
+
+      # J4 : ajouter ici `dbt build` sur les fixtures (dbt/seeds)

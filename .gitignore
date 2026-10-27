@@ -1,0 +1,29 @@
+# Secrets
+.env
+
+# Données locales (versionnées uniquement sur la branche `data`)
+data/
+*.duckdb
+*.duckdb.wal
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+
+# dbt
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+logs/
+
+# Éditeurs / OS
+.vscode/
+.idea/
+.DS_Store

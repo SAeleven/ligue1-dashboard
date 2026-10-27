@@ -32,4 +32,11 @@ jobs:
       - name: Tests (pytest)
         run: uv run pytest --cov=ligue1 --cov-report=term-missing
 
-      # J4 : ajouter ici `dbt build` sur les fixtures (dbt/seeds)
+      - name: dbt build (données de test)
+        env:
+          DATA_DIR: ci_data
+          DUCKDB_PATH: ci_data/ligue1.duckdb
+        run: |
+          uv run python -m tests.seed ci_data
+          uv run python -m ligue1.load
+          uv run dbt build --project-dir dbt --profiles-dir dbt

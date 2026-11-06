@@ -22,7 +22,8 @@ def test_export_writes_one_parquet_per_mart_table(tmp_path: Path) -> None:
     written = export(db, tmp_path / "marts")
 
     assert [p.name for p in written] == ["dim_teams.parquet", "fct_matches.parquet"]
-    rows = duckdb.sql(f"select * from read_parquet('{written[0].as_posix()}')").fetchall()
+    with duckdb.connect() as con:
+        rows = con.execute(f"select * from read_parquet('{written[0].as_posix()}')").fetchall()
     assert rows == [(524, "PSG")]
 
 

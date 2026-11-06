@@ -12,6 +12,9 @@ dependencies = [
     "duckdb>=1.1",
     "dbt-core>=1.10",
     "dbt-duckdb>=1.9",
+    "streamlit>=1.50",
+    "plotly>=6.0",
+    "pandas>=2.2",
 ]
 
 [dependency-groups]
@@ -47,7 +50,7 @@ select = [
     "SIM",     # simplify
     "D",       # docstrings
 ]
-ignore = ["D100", "D104", "D203", "D213", "D401"]  # D401 : docstrings en français
+ignore = ["D100", "D104", "D203", "D213", "D400", "D401"]  # D400, D401 : docstrings en français
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["D"]
@@ -57,7 +60,12 @@ ignore = ["D100", "D104", "D203", "D213", "D401"]  # D401 : docstrings en franç
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
-files = ["src", "tests"]
+files = ["src", "app", "tests"]
+
+[[tool.mypy.overrides]]
+# pandas et plotly ne publient pas d'annotations de type.
+module = ["pandas", "pandas.*", "plotly", "plotly.*"]
+ignore_missing_imports = true
 
 # --- Tests -------------------------------------------------------------------
 [tool.pytest.ini_options]

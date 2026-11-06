@@ -40,3 +40,8 @@ jobs:
           uv run python -m tests.seed ci_data
           uv run python -m ligue1.load
           uv run dbt build --project-dir dbt --profiles-dir dbt
+
+      - name: Test de fumée du dashboard (données de test)
+        env:
+          DUCKDB_PATH: ci_data/ligue1.duckdb
+        run: uv run pytest tests/test_app_smoke.py -v

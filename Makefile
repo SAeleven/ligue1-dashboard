@@ -42,5 +42,5 @@ docs: ## Génère et sert la documentation dbt (lineage)
 export: ## [J6] marts -> Parquet
 	uv run python -m ligue1.export
 
-app: ## [J5] Lance le dashboard
+app: ## Lance le dashboard (http://localhost:8501)
 	uv run streamlit run app/main.py

@@ -1,0 +1,90 @@
+name: Pipeline quotidien
+
+# Chaque jour à 5 h UTC (6 h à Paris en hiver, 7 h en été), et à la demande
+# depuis l'onglet Actions. Les données sont publiées sur la branche orpheline
+# `data` ; un test dbt en échec arrête le run avant toute publication, et le
+# dashboard garde alors les données de la veille.
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATA_DIR: data
+      DUCKDB_PATH: data/ligue1.duckdb
+      PUBLISH_DIR: data-branch
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Récupérer la branche data (ou la créer au premier run)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth=1 origin +refs/heads/data:refs/remotes/origin/data; then
+            git worktree add --detach "$PUBLISH_DIR" origin/data
+          else
+            echo "Branche data absente : création d'une branche orpheline."
+            git worktree add --detach "$PUBLISH_DIR"
+            git -C "$PUBLISH_DIR" checkout --orphan data
+            git -C "$PUBLISH_DIR" rm -rf --quiet .
+          fi
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Installer les dépendances
+        run: uv sync --locked
+
+      - name: Restaurer l'historique des snapshots
+        run: uv run python -m ligue1.archive unpack "$PUBLISH_DIR/raw" data/raw
+
+      - name: Extract (API football-data.org)
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+        run: uv run python -m ligue1.extract --scorers
+
+      - name: Load (DuckDB)
+        run: uv run python -m ligue1.load
+
+      - name: Transform (dbt build, tests compris)
+        run: uv run dbt build --project-dir dbt --profiles-dir dbt
+
+      - name: Export des marts en Parquet
+        run: uv run python -m ligue1.export --out "$PUBLISH_DIR/marts"
+
+      - name: Archiver le snapshot du jour
+        run: uv run python -m ligue1.archive pack data/raw "$PUBLISH_DIR/raw"
+
+      - name: Publier sur la branche data
+        working-directory: ${{ env.PUBLISH_DIR }}
+        run: |
+          cat > README.md <<'EOF'
+          # Données du dashboard Ligue 1
+
+          Branche générée automatiquement par le workflow `pipeline.yml` : ne pas modifier à la main.
+
+          - `marts/*.parquet` : tables lues par le dashboard, réécrites à chaque run.
+          - `raw/**.json.gz` : réponses brutes de l'API football-data.org, un snapshot par jour.
+          EOF
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Aucune donnée nouvelle : rien à publier."
+            exit 0
+          fi
+          git commit --quiet -m "data: snapshot du $(date -u +%F)"
+          git push origin HEAD:refs/heads/data
+          echo "### Données publiées le $(date -u '+%F à %H:%M') UTC" >> "$GITHUB_STEP_SUMMARY"

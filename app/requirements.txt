@@ -1,0 +1,8 @@
+# Dépendances du dashboard seul, pour Streamlit Community Cloud.
+# Ce fichier, placé à côté de app/main.py, prend le pas sur uv.lock à la racine :
+# l'app hébergée n'installe ni dbt ni les outils de développement.
+# Versions alignées sur uv.lock (vérifié par tests/test_requirements.py).
+streamlit==1.67.0
+plotly==7.1.0
+pandas==3.1.1
+duckdb==2.0.0

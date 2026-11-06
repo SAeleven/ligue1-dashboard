@@ -39,7 +39,7 @@ docs: ## Génère et sert la documentation dbt (lineage)
 	uv run dbt docs generate --project-dir dbt --profiles-dir dbt
 	uv run dbt docs serve --project-dir dbt --profiles-dir dbt
 
-export: ## [J6] marts -> Parquet
+export: ## marts -> Parquet (data/marts)
 	uv run python -m ligue1.export
 
 app: ## Lance le dashboard (http://localhost:8501)

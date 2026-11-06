@@ -45,3 +45,11 @@ jobs:
         env:
           DUCKDB_PATH: ci_data/ligue1.duckdb
         run: uv run pytest tests/test_app_smoke.py -v
+
+      - name: Test de fumée du dashboard, lecture Parquet (comme l'app hébergée)
+        env:
+          DUCKDB_PATH: ci_data/ligue1.duckdb
+          MARTS_URL: ci_data/marts
+        run: |
+          uv run python -m ligue1.export --out ci_data/marts
+          uv run pytest tests/test_app_smoke.py -v

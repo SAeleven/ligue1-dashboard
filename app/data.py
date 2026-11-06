@@ -2,8 +2,9 @@
 
 Deux sources possibles, choisies par variable d'environnement :
 
-- `MARTS_URL` défini : fichiers Parquet `<MARTS_URL>/<mart>.parquet`, en local ou
-  par HTTPS (mise en ligne, jalon J6) ;
+- `MARTS_URL` défini (variable d'environnement ou secret Streamlit) : fichiers
+  Parquet `<MARTS_URL>/<mart>.parquet`, en local ou par HTTPS — c'est le mode de
+  l'app hébergée, qui lit la branche `data` du repo ;
 - sinon : la base DuckDB construite par dbt (`DUCKDB_PATH`, défaut
   `data/ligue1.duckdb`), ouverte en lecture seule.
 
@@ -65,6 +66,8 @@ def _read_tables(duckdb_path: str, marts_url: str | None) -> dict[str, pd.DataFr
         sources = {name: f"marts.{name}" for name in MARTS}
 
     try:
+        if marts_url and marts_url.startswith(("http://", "https://")):
+            con.execute("install httpfs; load httpfs")
         con.execute(f"set TimeZone = '{DISPLAY_TZ}'")
         return {name: con.sql(f"select * from {source}").df() for name, source in sources.items()}
     except duckdb.Error as exc:
@@ -115,9 +118,21 @@ def load_marts(duckdb_path: str, marts_url: str | None) -> Marts:
     return build_marts(_read_tables(duckdb_path, marts_url))
 
 
+def _setting(name: str, default: str | None = None) -> str | None:
+    """Variable d'environnement, sinon secret Streamlit (Community Cloud), sinon défaut."""
+    value = os.environ.get(name)
+    if value:
+        return value
+    try:
+        secret = st.secrets.get(name)
+    except Exception:  # pas de fichier de secrets en local : comportement normal
+        secret = None
+    return str(secret) if secret else default
+
+
 def load_from_env() -> Marts:
-    """Charge les marts depuis la source configurée par l'environnement."""
+    """Charge les marts depuis la source configurée (MARTS_URL ou DUCKDB_PATH)."""
     return load_marts(
-        os.environ.get("DUCKDB_PATH", "data/ligue1.duckdb"),
-        os.environ.get("MARTS_URL") or None,
+        _setting("DUCKDB_PATH", "data/ligue1.duckdb") or "data/ligue1.duckdb",
+        _setting("MARTS_URL"),
     )

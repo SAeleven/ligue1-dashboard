@@ -40,12 +40,25 @@ Un token gratuit s'obtient sur [football-data.org](https://www.football-data.org
 | `make load` | raw → DuckDB (schéma `raw`) |
 | `make transform` | `dbt build` : modèles + tests |
 | `make docs` | Documentation dbt et lineage |
+| `make export` | marts → Parquet (`data/marts`) |
 | `make app` | Lance le dashboard sur http://localhost:8501 |
+
+## Mise à jour quotidienne et mise en ligne
+
+Le workflow [`pipeline.yml`](.github/workflows/pipeline.yml) tourne chaque jour à 5 h UTC (et à la demande depuis l'onglet *Actions*) : extract → load → `dbt build` → export Parquet, puis publication sur la branche orpheline [`data`](../../tree/data). Un test dbt en échec bloque la publication : le dashboard garde les données de la veille. Détails : [ADR 0003](docs/adr/0003-publication-des-donnees.md).
+
+Le dashboard hébergé (Streamlit Community Cloud) lit les Parquet de la branche `data` par HTTPS via le secret `MARTS_URL` ; il installe uniquement [`app/requirements.txt`](app/requirements.txt).
+
+Mettre à jour les données en local :
+
+```bash
+make extract SCORERS=1 && make load && make transform
+```
 
 ## Arborescence
 
 ```
-├── .github/workflows/   CI (et pipeline quotidien en J6)
+├── .github/workflows/   ci.yml (qualité, à chaque push), pipeline.yml (données, chaque jour)
 ├── app/                 dashboard Streamlit : main.py, data.py, blocks/ (F1 à F5)
 ├── src/ligue1/          ingestion : client API, extract, load, export
 ├── dbt/                 modèles staging / intermediate / marts + tests (J4)

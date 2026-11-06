@@ -1,6 +1,9 @@
 # Ligue 1 Dashboard
 
 ![CI](https://github.com/SAeleven/ligue1-dashboard/actions/workflows/ci.yml/badge.svg)
+![Pipeline quotidien](https://github.com/SAeleven/ligue1-dashboard/actions/workflows/pipeline.yml/badge.svg)
+
+**▶ Dashboard en ligne : [ligue1-dashboard.streamlit.app](https://ligue1-dashboard.streamlit.app/)**
 
 Dashboard public de la saison de Ligue 1 en cours, alimenté chaque jour par un pipeline de données automatisé :
 
@@ -9,7 +12,7 @@ football-data.org ──▶ JSON (raw) ──▶ DuckDB ──▶ dbt (staging �
                         └──────────── orchestré par GitHub Actions, chaque jour à 6 h ────────────┘
 ```
 
-> 🚧 Projet en cours — jalon actuel : **J6 Automatisation et mise en ligne**. Voir le [cahier des charges](docs/cdc.md) et la [spécification technique](docs/spec.md).
+> 🚧 Projet en cours — jalon actuel : **J6 Automatisation** (validation : 7 jours de mises à jour automatiques). Voir le [cahier des charges](docs/cdc.md) et la [spécification technique](docs/spec.md).
 
 ## Stack
 

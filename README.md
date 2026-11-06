@@ -9,7 +9,7 @@ football-data.org ──▶ JSON (raw) ──▶ DuckDB ──▶ dbt (staging �
                         └──────────── orchestré par GitHub Actions, chaque jour à 6 h ────────────┘
 ```
 
-> 🚧 Projet en cours — jalon actuel : **J2 Setup**. Voir le [cahier des charges](docs/cdc.md) et la [spécification technique](docs/spec.md).
+> 🚧 Projet en cours — jalon actuel : **J6 Automatisation et mise en ligne**. Voir le [cahier des charges](docs/cdc.md) et la [spécification technique](docs/spec.md).
 
 ## Stack
 
@@ -40,13 +40,13 @@ Un token gratuit s'obtient sur [football-data.org](https://www.football-data.org
 | `make load` | raw → DuckDB (schéma `raw`) |
 | `make transform` | `dbt build` : modèles + tests |
 | `make docs` | Documentation dbt et lineage |
-| `make app` | *(J5)* Lance le dashboard |
+| `make app` | Lance le dashboard sur http://localhost:8501 |
 
 ## Arborescence
 
 ```
 ├── .github/workflows/   CI (et pipeline quotidien en J6)
-├── app/                 dashboard Streamlit (J5)
+├── app/                 dashboard Streamlit : main.py, data.py, blocks/ (F1 à F5)
 ├── src/ligue1/          ingestion : client API, extract, load, export
 ├── dbt/                 modèles staging / intermediate / marts + tests (J4)
 ├── tests/               tests pytest
@@ -57,9 +57,9 @@ Un token gratuit s'obtient sur [football-data.org](https://www.football-data.org
 
 - [x] J1 Cadrage — cahier des charges et spécification technique
 - [x] J2 Setup — repo, uv, pre-commit, CI
-- [ ] J3 Ingestion
-- [ ] J4 Modélisation dbt
-- [ ] J5 Dashboard
+- [x] J3 Ingestion
+- [x] J4 Modélisation dbt
+- [x] J5 Dashboard
 - [ ] J6 Automatisation et mise en ligne
 - [ ] J7 Finalisation
 

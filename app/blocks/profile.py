@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from app.data import Marts
-from app.format import ACCENT, CONTEXT, DRAW, LOSS, WIN, streak_text
+from app.format import ACCENT, CONTEXT, DRAW, LOSS, SURFACE, WIN, streak_text
 
 GRID = "rgba(137, 135, 129, 0.2)"
 RESULTS = (("won", "Victoires", WIN), ("drawn", "Nuls", DRAW), ("lost", "Défaites", LOSS))
@@ -90,7 +90,7 @@ def attack_defense_figure(profiles: pd.DataFrame, selected_team_id: int | None) 
                     "size": 14 if highlighted else 9,
                     "color": ACCENT if highlighted else CONTEXT,
                     "opacity": 1.0 if highlighted else (0.35 if has_selection else 0.7),
-                    "line": {"width": 2, "color": "white"},
+                    "line": {"width": 2, "color": SURFACE},
                 },
                 customdata=part["short_name"],
                 hovertemplate=(

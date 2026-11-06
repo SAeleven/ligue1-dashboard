@@ -10,7 +10,8 @@ from datetime import datetime
 
 import pandas as pd
 
-ACCENT = "#2a78d6"
+ACCENT = "#3987e5"  # pas « sombre » de la palette de référence
+SURFACE = "#0e1117"  # fond du thème sombre de Streamlit
 CONTEXT = "#898781"
 WIN = "#0ca30c"
 DRAW = "#898781"
